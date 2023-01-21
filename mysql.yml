@@ -1,0 +1,14 @@
+---
+- hosts: test
+  user: makar
+  become: true
+  gather_facts: no
+  tasks:
+    - name: Install MySQL
+      apt:
+        pkg:
+          - mysql-server
+        state: latest
+        update_cache: yes
+    - name: Start the MySQL service
+      action: service name=mysql state=started
