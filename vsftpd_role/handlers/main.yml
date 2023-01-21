@@ -1,0 +1,6 @@
+---
+- name: Restart vsFTPd Server
+  service:
+    name: vsftpd
+    state: restarted
+
