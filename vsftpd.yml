@@ -1,0 +1,14 @@
+---
+- hosts: test
+  user: makar
+  become: true
+  gather_facts: no
+
+  roles:
+  - role: vsftpd
+    ftp_server_banner: "Welcome to vsFTPd server"
+    users:
+      - name: devops
+        state: present
+        comment: "FTP user"
+        password: "$6$3GVHSi/ez1w6bm9$DqSiQCjdj5XZ5a6wavdN9.ctefhz6JadrXx/aXJR5567CvxTQKtvaCkdRcASa2xsdMmyv27aZkM.dGTWwxXE1."
