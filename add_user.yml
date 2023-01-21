@@ -1,0 +1,47 @@
+---
+- hosts: remote
+  vars_files:
+    - secret.yml
+  gather_facts: no
+  remote_user: makar
+  become: true
+  tasks:
+    - name: Add a new user named user1
+      user:
+        name: user1
+        shell: /bin/bash
+        password: "{{ password }}"
+
+    - name: Add user1 to the sudoers
+      copy:
+        dest: "/etc/sudoers.d/user1"
+        content: "user1  ALL=(ALL)  NOPASSWD: ALL"
+
+    - name: push ssh pub key
+      authorized_key:
+        user: user1
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present
+
+    - name: Disable Password Authentication
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp='^PasswordAuthentication'
+        line="PasswordAuthentication no"
+        state=present
+        backup=yes
+
+    - name: Disable Root Login
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp='^PermitRootLogin'
+        line="PermitRootLogin no"
+        state=present
+        backup=yes
+      notify: restart ssh
+
+  handlers:
+  - name: restart ssh
+    service:
+      name=sshd
+      state=restarted
