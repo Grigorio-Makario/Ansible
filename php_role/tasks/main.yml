@@ -1,0 +1,33 @@
+---
+- name: Update APT packages list
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Install PHP
+  apt:
+    package: "{{ item }}"
+    state: latest
+  with_items:
+    - php7.4
+    - php7.4-cli
+    - php7.4-fpm
+    - php7.4-json
+    - php7.4-pdo
+    - php7.4-mysql
+    - php7.4-zip
+    - php7.4-gd
+    - php7.4-mbstring
+    - php7.4-curl
+    - php7.4-xml
+    - php-pear
+    - php7.4-bcmath
+
+- name: Copy the www-config to server
+  template:
+    src: www.conf.j2
+    dest: "/etc/php/7.4/fpm/pool.d/www.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart PHP

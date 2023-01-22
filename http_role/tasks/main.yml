@@ -1,0 +1,27 @@
+---
+- name: Update APT packages list
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Install nginx
+  apt:
+    package: "{{ item }}"
+    state: latest
+  with_items:
+    - nginx
+
+- name: add index.php
+  copy:
+    src: /etc/ansible/roles/http/files/index.php
+    dest: /var/www/html/index.php
+
+
+- name: Copy the nginx default to the server
+  template:
+    src: default.j2
+    dest: "/etc/nginx/sites-available/default"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart Nginx

@@ -1,0 +1,12 @@
+---
+- hosts: remote
+  remote_user: makar
+  become: true
+  roles:
+    - users	
+    - http
+- hosts: test
+  roles:
+    - users
+    - php
+

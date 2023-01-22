@@ -1,0 +1,26 @@
+---
+- name: Add a new user named poweruser
+  user:
+    name: poweruser
+    shell: /bin/bash
+    password: "{{ password }}"
+
+- name: Add powersuser sudo
+  copy:
+    dest: "/etc/sudoers.d/poweruser"
+    content: "poweruser  ALL=(ALL)  NOPASSWD: ALL"
+
+- name: push ssh pub key
+  authorized_key:
+    user: poweruser
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    state: present
+
+#- name: Disable Password Authentication
+#  lineinfile:
+#    dest=/etc/ssh/sshd_config
+#    regexp='^PasswordAuthentication'
+#    line="PasswordAuthentication no"
+#    state=present
+#    backup=yes
+  notify: restart ssh
