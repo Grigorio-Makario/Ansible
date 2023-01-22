@@ -1,0 +1,27 @@
+---
+- name: Update APT packages list
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Install Dnsmasq package
+  apt:
+    package: "{{ item }}"
+    state: present
+  with_items:
+    - dnsmasq
+
+- name: Set configuration file
+  template:
+    src: etc_dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+#    validate: 'dnsmasq --test --conf-file=%s'
+  notify: restart dnsmasq
+  tags: dnsmasq
+
+- name: Make sure Dnsmasq is running
+  service:
+    name: dnsmasq
+    state: started
+    enabled: yes
+  tags: dnsmasq
