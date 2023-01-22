@@ -1,0 +1,4 @@
+---
+- hosts: test
+  roles:
+    - nginx_php_fpm

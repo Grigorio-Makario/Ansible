@@ -1,0 +1,45 @@
+---
+- name: Update APT packages list
+  apt:
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Install packages
+  apt:
+    package: "{{ item }}"
+    state: latest
+  with_items:
+    - nginx
+    - php7.4
+    - php7.4-cli
+    - php7.4-fpm
+    - php7.4-json
+    - php7.4-pdo
+    - php7.4-mysql
+    - php7.4-zip
+    - php7.4-gd
+    - php7.4-mbstring
+    - php7.4-curl
+    - php7.4-xml
+    - php-pear
+    - php7.4-bcmath
+
+- name: creating /opt/nginx/ansible
+  file:
+    path: /opt/nginx/ansible
+    state: directory
+
+- name: create content
+  copy:
+    src: /etc/ansible/roles/nginx_php_fpm/files/content.php
+    dest: /opt/nginx/ansible/index.php
+    remote_src: yes
+
+- name: Copy the nginx default to the server
+  template:
+    src: default.j2
+    dest: "/etc/nginx/sites-available/default"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart Nginx
