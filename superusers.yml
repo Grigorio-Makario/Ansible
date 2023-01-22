@@ -1,0 +1,33 @@
+---
+- hosts: test
+  vars_files:
+    - secret_users.yml
+  tasks:
+    - name: Create group
+      group:
+        name: superusers
+        state: present
+
+    - name: Add a new user named user2
+      user:
+        name: user2
+        shell: /bin/bash
+        password: "{{ password_user2 }}"
+        group: superusers         
+
+    - name: Add user2 to the sudoers
+      copy:
+        dest: "/etc/sudoers.d/user2"
+        content: "user2  ALL=(ALL)  NOPASSWD: ALL"
+
+    - name: Add a new user named user3
+      user:
+        name: user3
+        shell: /bin/bash
+        password: "{{ password_user3 }}"
+        group: superusers
+
+    - name: Add user3 to the sudoers
+      copy:
+        dest: "/etc/sudoers.d/user3"
+        content: "user3  ALL=(ALL)  NOPASSWD: ALL"
