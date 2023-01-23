@@ -1,0 +1,84 @@
+---
+- hosts: app
+  become: true
+  gather_facts: yes
+  vars:
+    user_name: ansible
+  tasks:
+    - name: Install packages on Ubuntu host
+      apt:
+        package: "{{ item }}" 
+        state: latest
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    
+    - name: Install packages on CentOS host
+      yum:
+        package: "{{ item }}" 
+        state: latest
+      with_items:
+        - yum-utils
+        - lvm2
+        - device-mapper-persistent-data
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    
+    - name: Add Docker’s official GPG key on Ubuntu
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    
+    - name: Run apt upgrade Ubuntu host
+      apt:
+        upgrade: "yes"
+        update_cache: yes
+        cache_valid_time: 432000
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' 
+
+    - name: Add Docker repo CentOS
+      get_url:
+        url:  https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    
+    - name: Use the following command to set up the repository Ubuntu
+      apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+        update_cache: yes
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: Install Docker on Ubuntu host
+      apt:
+        package: "{{ item }}" 
+        state: latest
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose-plugin
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    
+    - name: Install Docker on CentOS host
+      yum: 
+        package: "{{ item }}" 
+        state: latest
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-compose-plugin
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+    
+    - name: restart docker
+      service: 
+        name: docker 
+        state: started 
+        enabled: yes

@@ -1,0 +1,51 @@
+---
+- hosts: database
+  gather_facts: yes
+  become: yes
+  vars:
+    user_name: ansible
+  tasks:
+    - name: Add key
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+
+    - name:  Repo postgres
+      copy:
+        dest: /etc/apt/sources.list.d/postgresql.list
+        content: deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main
+
+    - name: Run apt upgrade
+      apt:
+        upgrade: "yes"
+        update_cache: yes
+        cache_valid_time: 432000
+
+    - name: Install packages
+      apt: 
+        package: "{{ item  }}-{{ postgresql_version }}"
+        state: latest
+      with_items:
+        - postgresql
+
+    - name: Creating data_dir
+      file:
+        path: "{{ postgres_data_path }}"
+        owner: postgres 
+        group: postgres
+        mode: 0755
+        state: directory
+
+    - name: Change config-file
+      lineinfile:
+        dest: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+        regexp: '^data_directory ='
+        line: "data_directory = {{ postgres_data_path }}"
+        state: present
+        backup: yes
+
+    - name: restart  postgresql
+      service: 
+        name: postgresql 
+        state: started 
+        enabled: yes

@@ -1,0 +1,13 @@
+[app]
+10.128.0.20
+10.128.0.30
+
+[database]
+10.128.0.10
+  
+[web]
+10.128.0.10
+
+[database:vars]
+postgres_data_path = /etc/postgressql/data/
+postgresql_version = 14
